@@ -1,29 +1,51 @@
 import streamlit as st
 
-st.title("✅ My To-Do List")
+# 1. Setup Session State
+if "tasks" not in st.session_state:
+    st.session_state.tasks = [] # List of dicts: {"name": str, "done": bool}
 
-# 1. Initialize the list in the "Session State" so it doesn't reset
-if "todos" not in st.session_state:
-    st.session_state.todos = []
+st.title("📱 Task Master")
 
-# 2. Input to add a new task
-new_todo = st.text_input("What needs to be done?", placeholder="Enter a task...")
+# 2. Mobile-style Navigation Bar
+page = st.segmented_control(
+    "Navigation", 
+    ["Current", "Completed", "Settings"], 
+    default="Current",
+    label_visibility="collapsed"
+)
 
-if st.button("Add Task"):
-    if new_todo:
-        st.session_state.todos.append(new_todo)
-        st.rerun() # Refresh the app to show the new item
+st.divider()
 
-# 3. Display the list with "Done" buttons
-st.write("---")
-for index, task in enumerate(st.session_state.todos):
-    col1, col2 = st.columns([0.8, 0.2])
-    col1.write(f"**{index + 1}.** {task}")
-    
-    # Unique key for each button
-    if col2.button("Done", key=f"btn_{index}"):
-        st.session_state.todos.pop(index)
+# --- PAGE: CURRENT TASKS ---
+if page == "Current":
+    new_task = st.text_input("Add new task", placeholder="Enter task...")
+    if st.button("Add", use_container_width=True) and new_task:
+        st.session_state.tasks.append({"name": new_task, "done": False})
         st.rerun()
 
-# 4. Sidebar info
-st.sidebar.info(f"You have {len(st.session_state.todos)} tasks remaining.")
+    for i, task in enumerate(st.session_state.tasks):
+        if not task["done"]:
+            col1, col2 = st.columns([0.8, 0.2])
+            col1.write(f"⭕ {task['name']}")
+            if col2.button("✅", key=f"done_{i}"):
+                task["done"] = True
+                st.rerun()
+
+# --- PAGE: COMPLETED ---
+elif page == "Completed":
+    st.subheader("Finished Tasks")
+    for task in st.session_state.tasks:
+        if task["done"]:
+            st.write(f"✔️ ~{task['name']}~")
+    
+    if st.button("Clear History"):
+        st.session_state.tasks = [t for t in st.session_state.tasks if not t["done"]]
+        st.rerun()
+
+# --- PAGE: SETTINGS ---
+elif page == "Settings":
+    st.subheader("App Settings")
+    st.color_picker("Theme Color", "#FF4B4B")
+    if st.button("Delete All Data", type="primary"):
+        st.session_state.tasks = []
+        st.rerun()
