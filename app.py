@@ -19,21 +19,13 @@ st.divider()
 
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
-    # This URL scheme is more reliably recognized by Android as an "App Link"
-    # It tries to open the Gemini app directly with the prompt
-    gemini_url = f"https://gemini.google.com{task_text}"
+    # Standard Streamlit link button (Avoids iframe/about:blank issues)
+    # We use a URL-encoded prompt to ensure it's valid
+    import urllib.parse
+    encoded_text = urllib.parse.quote(task_text)
+    gemini_url = f"https://gemini.google.com{encoded_text}"
     
-    design = f"""
-    <a href="{gemini_url}" target="_blank" style="text-decoration:none;">
-        <button style="
-            width: 100%; background-color: #4285F4; color: white; 
-            border: none; padding: 15px; border-radius: 10px; 
-            font-weight: bold; cursor: pointer; font-size: 16px;">
-            ✨ Open in Gemini App
-        </button>
-    </a>
-    """
-    components.html(design, height=80)
+    st.link_button("✨ Open in Gemini App", gemini_url, use_container_width=True)
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
