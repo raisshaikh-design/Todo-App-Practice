@@ -19,16 +19,17 @@ st.divider()
 
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
-    # This specific intent targets the Gemini App package on Android
-    intent_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={task_text};package=com.google.android.apps.bard;end"
+    # This URL scheme is more reliably recognized by Android as an "App Link"
+    # It tries to open the Gemini app directly with the prompt
+    gemini_url = f"https://gemini.google.com{task_text}"
     
     design = f"""
-    <a href="{intent_url}" style="text-decoration:none;">
+    <a href="{gemini_url}" target="_blank" style="text-decoration:none;">
         <button style="
             width: 100%; background-color: #4285F4; color: white; 
             border: none; padding: 15px; border-radius: 10px; 
             font-weight: bold; cursor: pointer; font-size: 16px;">
-            ✨ Ask Gemini AI to Plan Tasks
+            ✨ Open in Gemini App
         </button>
     </a>
     """
