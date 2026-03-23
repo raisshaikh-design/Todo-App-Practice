@@ -20,26 +20,17 @@ st.divider()
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
     import urllib.parse
-    # URL encode the text for the Android Intent
+    # 1. Encode the prompt for a URL
     query = urllib.parse.quote(task_text)
     
-    # This specific string is an 'Android Intent'
-    # It tells Android: "Send this text to the Gemini App"
-    intent_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={query};package=com.google.android.apps.bard;end"
+    # 2. Use the official Gemini Web-to-App Link
+    # Android is programmed to intercept "://gemini.google.com" 
+    # and route it to the installed app automatically.
+    gemini_url = f"https://://gemini.google.com?prompt={query}"
+    
+    # 3. Use a standard Streamlit link button (Highest trust level)
+    st.link_button("✨ Send to Gemini App", gemini_url, use_container_width=True)
 
-    # Use a standard Markdown link (Browsers trust this more than JS buttons)
-    st.markdown(
-        f"""
-        <a href="{intent_url}" target="_top" style="text-decoration: none;">
-            <div style="
-                background-color: #4285F4; color: white; padding: 15px; 
-                text-align: center; border-radius: 10px; font-weight: bold;">
-                🚀 Open Gemini & Auto-Paste
-            </div>
-        </a>
-        """, 
-        unsafe_allow_html=True
-    )
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
