@@ -19,14 +19,25 @@ st.divider()
 
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
-    import urllib.parse
-    # Encode text so it doesn't break the URL
-    query = urllib.parse.quote(task_text)
-    # This direct URL is the most reliable way for Android to trigger an App Link
-    gemini_url = f"https://gemini.google.com{query}"
-    
-    st.info("Tip: If the app doesn't open, long-press the button below.")
-    st.link_button("✨ Send to Gemini App", gemini_url, use_container_width=True)
+    # This creates a button that copies tasks to your phone's clipboard
+    copy_js = f"""
+    <script>
+    function copyTasks() {{
+        const text = `{task_text}`;
+        navigator.clipboard.writeText(text).then(() => {{
+            alert("Tasks copied! Now open Gemini and paste them.");
+            window.open("https://gemini.google.com", "_blank");
+        }});
+    }}
+    </script>
+    <button onclick="copyTasks()" style="
+        width: 100%; background-color: #4285F4; color: white; 
+        border: none; padding: 15px; border-radius: 10px; 
+        font-weight: bold; cursor: pointer; font-size: 16px;">
+        📋 Copy & Open Gemini
+    </button>
+    """
+    st.components.v1.html(copy_js, height=80)
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
