@@ -18,18 +18,43 @@ page = st.segmented_control(
 st.divider()
 
 # --- HELPER: GEMINI INTENT BUTTON ---
+import streamlit as st
+import streamlit.components.v1 as components
+import urllib.parse
+
 def share_to_gemini(task_text):
-    import urllib.parse
-    # 1. Encode the prompt for a URL
+    # 1. Prepare the URL
     query = urllib.parse.quote(task_text)
+    gemini_url = f"https://gemini.google.com{query}"
     
-    # 2. Use the official Gemini Web-to-App Link
-    # Android is programmed to intercept "://gemini.google.com" 
-    # and route it to the installed app automatically.
-    gemini_url = f"https://://gemini.google.com?prompt={query}"
-    
-    # 3. Use a standard Streamlit link button (Highest trust level)
-    st.link_button("✨ Send to Gemini App", gemini_url, use_container_width=True)
+    # 2. JavaScript that COPIES text first, then provides a link
+    # This avoids the "about:blank#blocked" because the link is a simple <a> tag
+    html_code = f"""
+    <div style="background:#f0f2f6; padding:15px; border-radius:10px; border:1px solid #dcdfe3;">
+        <p style="margin:0 0 10px 0; font-family:sans-serif; font-size:14px; color:#31333F;">
+            <b>Step 1:</b> Copy your tasks
+        </p>
+        <button onclick="navigator.clipboard.writeText('{task_text}'); alert('Tasks Copied!')" 
+            style="width:100%; background-color:#4285F4; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
+            📋 Click to Copy Tasks
+        </button>
+        <p style="margin:15px 0 10px 0; font-family:sans-serif; font-size:14px; color:#31333F;">
+            <b>Step 2:</b> Open Gemini and Paste
+        </p>
+        <a href="{gemini_url}" target="_blank" style="text-decoration:none;">
+            <div style="width:100%; background-color:#1a73e8; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;">
+                ✨ Open Gemini App
+            </div>
+        </a>
+    </div>
+    """
+    components.html(html_code, height=180)
+
+# Example Usage:
+tasks = [t['name'] for t in st.session_state.tasks if not t['done']]
+if tasks:
+    prompt = f"Plan these tasks for me: {', '.join(tasks)}"
+    share_to_gemini(prompt)
 
 
 # --- PAGE: CURRENT TASKS ---
