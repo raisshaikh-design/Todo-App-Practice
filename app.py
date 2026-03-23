@@ -1,3 +1,5 @@
+import streamlit as st
+
 # Format for a native share intent
 share_text = "Check out my tasks!"
 share_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={share_text};end"
