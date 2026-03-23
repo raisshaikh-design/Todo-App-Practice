@@ -19,13 +19,13 @@ st.divider()
 
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
-    # Standard Streamlit link button (Avoids iframe/about:blank issues)
-    # We use a URL-encoded prompt to ensure it's valid
     import urllib.parse
-    encoded_text = urllib.parse.quote(task_text)
-    gemini_url = f"https://gemini.google.com{encoded_text}"
-    
-    st.link_button("✨ Open in Gemini App", gemini_url, use_container_width=True)
+    # Encode the text to keep the URL short and safe
+    query = urllib.parse.quote(task_text)
+    # Use a direct web URL which Android is forced to resolve
+    url = f"https://gemini.google.com{query}"
+
+    st.link_button("✨ Send to Gemini", url, use_container_width=True)
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
