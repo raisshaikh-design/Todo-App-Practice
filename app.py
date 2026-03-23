@@ -23,32 +23,25 @@ import streamlit.components.v1 as components
 import urllib.parse
 
 def share_to_gemini(task_text):
-    # 1. Prepare the URL
-    query = urllib.parse.quote(task_text)
-    gemini_url = f"https://gemini.google.com{query}"
-    
-    # 2. JavaScript that COPIES text first, then provides a link
-    # This avoids the "about:blank#blocked" because the link is a simple <a> tag
-    html_code = f"""
-    <div style="background:#f0f2f6; padding:15px; border-radius:10px; border:1px solid #dcdfe3;">
-        <p style="margin:0 0 10px 0; font-family:sans-serif; font-size:14px; color:#31333F;">
-            <b>Step 1:</b> Copy your tasks
-        </p>
-        <button onclick="navigator.clipboard.writeText('{task_text}'); alert('Tasks Copied!')" 
-            style="width:100%; background-color:#4285F4; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
-            📋 Click to Copy Tasks
-        </button>
-        <p style="margin:15px 0 10px 0; font-family:sans-serif; font-size:14px; color:#31333F;">
-            <b>Step 2:</b> Open Gemini and Paste
-        </p>
-        <a href="{gemini_url}" target="_blank" style="text-decoration:none;">
-            <div style="width:100%; background-color:#1a73e8; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;">
-                ✨ Open Gemini App
-            </div>
-        </a>
-    </div>
+    # This creates a button that copies tasks to your phone's clipboard
+    copy_js = f"""
+    <script>
+    function copyTasks() {{
+        const text = `{task_text}`;
+        navigator.clipboard.writeText(text).then(() => {{
+            alert("Tasks copied! Now open Gemini and paste them.");
+            window.open("https://gemini.google.com", "_blank");
+        }});
+    }}
+    </script>
+    <button onclick="copyTasks()" style="
+        width: 100%; background-color: #4285F4; color: white; 
+        border: none; padding: 15px; border-radius: 10px; 
+        font-weight: bold; cursor: pointer; font-size: 16px;">
+        📋 Copy & Open Gemini
+    </button>
     """
-    components.html(html_code, height=180)
+    st.components.v1.html(copy_js, height=80)
 
 # Example Usage:
 tasks = [t['name'] for t in st.session_state.tasks if not t['done']]
