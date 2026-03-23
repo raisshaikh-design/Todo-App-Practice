@@ -20,30 +20,26 @@ st.divider()
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
     import urllib.parse
-    # 1. Double encode the text to ensure it passes through the Intent safely
+    # URL encode the text for the Android Intent
     query = urllib.parse.quote(task_text)
     
-    # 2. This specific "Intent" tells Android: 
-    # - Action: SEND (Shared text)
-    # - Package: Gemini (com.google.android.apps.bard)
-    # - Browser: Don't use a browser, find the app!
+    # This specific string is an 'Android Intent'
+    # It tells Android: "Send this text to the Gemini App"
     intent_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={query};package=com.google.android.apps.bard;end"
 
-    # 3. Use window.top to kill the "integrated browser" / iframe
-    js_code = f"""
-    <script>
-    function launchGemini() {{
-        window.top.location.href = "{intent_url}";
-    }}
-    </script>
-    <button onclick="launchGemini()" style="
-        width: 100%; background-color: #4285F4; color: white; 
-        border: none; padding: 15px; border-radius: 10px; 
-        font-weight: bold; cursor: pointer; font-size: 16px;">
-        🚀 Launch Gemini App Now
-    </button>
-    """
-    components.html(js_code, height=80)
+    # Use a standard Markdown link (Browsers trust this more than JS buttons)
+    st.markdown(
+        f"""
+        <a href="{intent_url}" target="_top" style="text-decoration: none;">
+            <div style="
+                background-color: #4285F4; color: white; padding: 15px; 
+                text-align: center; border-radius: 10px; font-weight: bold;">
+                🚀 Open Gemini & Auto-Paste
+            </div>
+        </a>
+        """, 
+        unsafe_allow_html=True
+    )
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
