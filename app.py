@@ -19,25 +19,31 @@ st.divider()
 
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
-    # This creates a button that copies tasks to your phone's clipboard
-    copy_js = f"""
+    import urllib.parse
+    # 1. Double encode the text to ensure it passes through the Intent safely
+    query = urllib.parse.quote(task_text)
+    
+    # 2. This specific "Intent" tells Android: 
+    # - Action: SEND (Shared text)
+    # - Package: Gemini (com.google.android.apps.bard)
+    # - Browser: Don't use a browser, find the app!
+    intent_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={query};package=com.google.android.apps.bard;end"
+
+    # 3. Use window.top to kill the "integrated browser" / iframe
+    js_code = f"""
     <script>
-    function copyTasks() {{
-        const text = `{task_text}`;
-        navigator.clipboard.writeText(text).then(() => {{
-            alert("Tasks copied! Now open Gemini and paste them.");
-            window.open("https://gemini.google.com", "_blank");
-        }});
+    function launchGemini() {{
+        window.top.location.href = "{intent_url}";
     }}
     </script>
-    <button onclick="copyTasks()" style="
+    <button onclick="launchGemini()" style="
         width: 100%; background-color: #4285F4; color: white; 
         border: none; padding: 15px; border-radius: 10px; 
         font-weight: bold; cursor: pointer; font-size: 16px;">
-        📋 Copy & Open Gemini
+        🚀 Launch Gemini App Now
     </button>
     """
-    st.components.v1.html(copy_js, height=80)
+    components.html(js_code, height=80)
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
