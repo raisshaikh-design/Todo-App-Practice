@@ -20,32 +20,25 @@ st.divider()
 # --- HELPER: GEMINI INTENT BUTTON ---
 def share_to_gemini(task_text):
     import urllib.parse
-    # 1. Cleanly encode your tasks for a URL
     query = urllib.parse.quote(task_text)
     gemini_url = f"https://gemini.google.com{query}"
-    
-    # 2. Use a direct Markdown link instead of a button component.
-    # This prevents the "about:blank#blocked" security trigger.
-    st.markdown(
-        f"""
-        <a href="{gemini_url}" target="_self" style="text-decoration: none;">
-            <div style="
-                background-color: #4285F4;
-                color: white;
-                padding: 14px;
-                text-align: center;
-                border-radius: 10px;
-                font-weight: bold;
-                font-size: 16px;
-                margin-top: 10px;
-                border: 1px solid #1a73e8;
-            ">
-                ✨ Send to Gemini App
-            </div>
-        </a>
-        """, 
-        unsafe_allow_html=True
-    )
+
+    # This JS forces the PARENT window (the browser) to change URL, 
+    # which bypasses the iframe security block.
+    js_breakout = f"""
+    <script>
+    function openGemini() {{
+        window.top.location.href = "{gemini_url}";
+    }}
+    </script>
+    <button onclick="openGemini()" style="
+        width: 100%; background-color: #4285F4; color: white; 
+        border: none; padding: 15px; border-radius: 10px; 
+        font-weight: bold; cursor: pointer; font-size: 16px;">
+        ✨ Open Gemini App
+    </button>
+    """
+    components.html(js_breakout, height=80)
 
 # --- PAGE: CURRENT TASKS ---
 if page == "Current":
