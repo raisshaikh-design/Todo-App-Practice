@@ -1,7 +1,38 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-# Format for a native share intent
-share_text = "Check out my tasks!"
-share_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={share_text};end"
+# 1. Define the share function
+def android_share(text):
+    # This JS checks if the browser supports native sharing (Chrome/Android)
+    js_code = f"""
+    <script>
+    function share() {{
+        if (navigator.share) {{
+            navigator.share({{
+                title: 'My Tasks',
+                text: '{text}',
+                url: window.location.href
+            }}).then(() => console.log('Successful share'))
+              .catch((error) => console.log('Error sharing', error));
+        }} else {{
+            alert("Web Share not supported on this browser.");
+        }}
+    }}
+    </script>
+    <button onclick="share()" style="
+        width: 100%; 
+        background-color: #FF4B4B; 
+        color: white; 
+        border: none; 
+        padding: 10px; 
+        border-radius: 5px;
+        cursor: pointer;">
+        📤 Share Tasks to AI Apps
+    </button>
+    """
+    components.html(js_code, height=60)
 
-st.markdown(f'<a href="{share_url}" style="text-decoration:none;"><button style="width:100%;">📤 Share to AI Apps</button></a>', unsafe_allow_html=True)
+# 2. Call it in your app
+st.subheader("Action")
+tasks_string = ", ".join([t['name'] for t in st.session_state.tasks if not t['done']])
+android_share(f"Here are my current tasks: {tasks_string}")
