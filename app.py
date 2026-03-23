@@ -1,38 +1,33 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 1. Define the share function
-def android_share(text):
-    # This JS checks if the browser supports native sharing (Chrome/Android)
-    js_code = f"""
-    <script>
-    function share() {{
-        if (navigator.share) {{
-            navigator.share({{
-                title: 'My Tasks',
-                text: '{text}',
-                url: window.location.href
-            }}).then(() => console.log('Successful share'))
-              .catch((error) => console.log('Error sharing', error));
-        }} else {{
-            alert("Web Share not supported on this browser.");
-        }}
-    }}
-    </script>
-    <button onclick="share()" style="
-        width: 100%; 
-        background-color: #FF4B4B; 
-        color: white; 
-        border: none; 
-        padding: 10px; 
-        border-radius: 5px;
-        cursor: pointer;">
-        📤 Share Tasks to AI Apps
-    </button>
+def share_to_gemini(task_text):
+    # Intent URL specifically for the Gemini App
+    # This sends a "SEND" action with your text directly to the Gemini package
+    intent_url = f"intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT={task_text};package=com.google.android.apps.bard;end"
+    
+    # Custom HTML button to trigger the intent
+    design = f"""
+    <a href="{intent_url}" style="text-decoration:none;">
+        <button style="
+            width: 100%; 
+            background-color: #4285F4; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 8px; 
+            font-weight: bold;
+            cursor: pointer;">
+            ✨ Send Tasks to Gemini AI
+        </button>
+    </a>
     """
-    components.html(js_code, height=60)
+    components.html(design, height=70)
 
-# 2. Call it in your app
-st.subheader("Action")
-tasks_string = ", ".join([t['name'] for t in st.session_state.tasks if not t['done']])
-android_share(f"Here are my current tasks: {tasks_string}")
+# Example Usage:
+tasks = [t['name'] for t in st.session_state.tasks if not t['done']]
+if tasks:
+    prompt = f"Can you help me prioritize or suggest a plan for these tasks: {', '.join(tasks)}?"
+    share_to_gemini(prompt)
+else:
+    st.info("Add some tasks first to share with Gemini!")
